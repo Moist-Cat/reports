@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block body %}
+    <h2>Create a task</h2>
+    <form action="/task" method="post">
+        <input name="task_id">
+        <input name="objective">
+        <input name="verb">
+        <input name="general_observations">
+        <input type="submit">
+    </form>
+	<h3>Select a task</h3>
+	<div id="tasks-list">
+	<table>
+        <tr>
+            <td>
+                ID
+             </td>
+             <td>
+                 Objective
+             </td>
+             <td>
+                 Date Created
+             </td>
+         </tr>
+	{% for task in tasks %}
+            <tr>
+                <td>
+                    <a href="/tasks/{{ task.id }}">{{ task.id }}</a>
+                 </td>
+                 <td>
+                     {{ task.objective }}
+                  </td>
+                  <td>
+                      {{ task.date_created }}
+                  </td>
+            </tr>
+	{% endfor %}
+    </table>
+	</div>
+{% endblock %}

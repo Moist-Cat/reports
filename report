@@ -1,0 +1,4 @@
+#!/usr/bin/python3
+from report.manage import get_command
+
+get_command()

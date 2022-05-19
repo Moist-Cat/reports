@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Reports Images{% endblock %}
+{% block body %}
+    <h2>Create a report</h2>
+    <form action="/reports" method="post">
+        <input name="objective">
+        <input name="verb">
+        <input name="general_observations">
+        <input type="submit">
+    </form>
+	<h3>Select a report</h3>
+	<div id="report-list">
+	<table>
+        <tr>
+            <td>
+                ID
+             </td>
+             <td>
+                 Objective
+             </td>
+             <td>
+                 Date Created
+             </td>
+         </tr>
+	{% for report in reports %}
+            <tr>
+                <td>
+                    <a href="/reports/{{ report.id }}">{{ report.id }}</a>
+                 </td>
+                 <td>
+                     {{ report.objective }}
+                  </td>
+                  <td>
+                      {{ report.date_created }}
+                  </td>
+            </tr>
+	{% endfor %}
+    </table>
+	</div>
+{% endblock %}
+{% block domready %}
+{% endblock %}
