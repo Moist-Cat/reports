@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% block body %}
     <h2>Create a task</h2>
-    <form action="/task" method="post">
-        <input name="task_id">
-        <input name="objective">
-        <input name="verb">
-        <input name="general_observations">
+    <form method="post">
+        <p>Task ID</p><input name="task_id">
+        <p>Objective</p><input name="objective">
+        <p>Solution</p><textarea name="solution" cols="48" rows="4" wrap="soft"></textarea>
+        <p>Status</p><input name="status" type="number">
+        <p>Priority</p><input name="priority" type="number">
+        <p>Observations</p><textarea name="observations" cols="48" rows="4" wrap="soft"></textarea>
         <input type="submit">
     </form>
 	<h3>Select a task</h3>
@@ -19,6 +21,15 @@
                  Objective
              </td>
              <td>
+                 Solution
+             </td>
+             <td>
+                 Priority
+             </td>
+             <td>
+                 Status
+             </td>
+             <td>
                  Date Created
              </td>
          </tr>
@@ -29,6 +40,15 @@
                  </td>
                  <td>
                      {{ task.objective }}
+                  </td>
+                  <td>
+                      {{ task.solution }}
+                  </td>
+                  <td>
+                      {{ task.priority }}
+                  </td>
+                  <td>
+                      {{ task.status }}
                   </td>
                   <td>
                       {{ task.date_created }}

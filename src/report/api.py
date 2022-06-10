@@ -1,13 +1,14 @@
 from datetime import datetime
-from sqlalchemy import desc, create_engine, update
-from sqlalchemy.orm import sessionmaker
 import json
 import logging
 # the project is too unstable atm to make type hints
-#from typing import Union, List, Set, Tuple, Dict
+# from typing import Union, List, Set, Tuple, Dict
 import os
 from glob import glob
 from pathlib import Path
+
+from sqlalchemy import desc, create_engine, update
+from sqlalchemy.orm import sessionmaker
 
 from report.conf import settings
 from report.db import Task, Report, STATUS, PRIORITY
@@ -20,7 +21,6 @@ CONFIG = settings.DATABASES["default"]["config"]
 
 @logged
 class DBClient:
-
     def __init__(self, engine=_ENGINE, config=CONFIG):
         self.logger.debug("Started %s. Engine: %s", self.__class__.__name__, _ENGINE)
 
@@ -40,23 +40,27 @@ class DBClient:
         return self.session.query(Task).all()
 
     def get_task(self, id):
-        return self.session.query(Task).filter(Task.id==id).one()
+        return self.session.query(Task).filter(Task.id == id).one()
 
-    def create_task(self, /, **kwargs):
+    def create_task(self, /, report_id, **kwargs):
+        report = self.session.query(Report).filter(Report.id == report_id).one()
+
         task = Task(**kwargs)
-        self.session.add(task)
+        report.tasks.append(task)
 
-        return task
+        self.logger.info("Added task %s for report %d", task, report_id)
+
+        return report.tasks
 
     def update_task(self, id, **kwargs):
         return self.session.execute(
-            update(Task).
-            where(Task.id==id).
-            values(**kwargs, date_updated=datetime.now())
+            update(Task)
+            .where(Task.id == id)
+            .values(date_updated=datetime.now(), **kwargs),
         )
-    
+
     def delete_task(self, id):
-        task = self.session.query(Task).filter(Task.id==id)
+        task = self.session.query(Task).filter(Task.id == id)
         self.session.delete(task)
 
         return None
@@ -66,7 +70,7 @@ class DBClient:
         return self.session.query(Report).all()
 
     def get_report(self, id):
-        return self.session.query(Report).filter(Report.id==id).one()
+        return self.session.query(Report).filter(Report.id == id).one()
 
     def create_report(self, /, **kwargs):
         report = Report(**kwargs)
@@ -76,13 +80,11 @@ class DBClient:
 
     def update_report(self, id, **kwargs):
         return self.session.execute(
-            update(Report).
-            where(Report.id==id).
-            values(**kwargs)
+            update(Report).where(Report.id == id).values(**kwargs)
         )
+
     def delete_report(self, id):
-        report = self.session.query(report).filter(Report.id==id)
+        report = self.session.query(report).filter(Report.id == id)
         self.session.delete(report)
 
         return None
-

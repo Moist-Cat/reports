@@ -2,6 +2,7 @@ import os
 import hashlib
 
 from flask import Flask, render_template, request, url_for, redirect
+from markdown import Markdown
 
 from report.api import DBClient
 from report.conf import settings
@@ -10,58 +11,55 @@ app = Flask(__name__)
 
 client = DBClient()
 
+
 @app.route("/")
 def index():
     return redirect(url_for("report"))
 
+
 @app.route("/reports", methods=["POST", "GET"])
 def report():
-    if request.method=="POST":
+    if request.method == "POST":
         kwargs = request.form
-        client.create_report(**kwargs)
+        report_id = kwargs["report_id"]
+        params = {key: value for key, value in kwargs.items() if key != "report_id"}
+
+        if report_id:
+            client.update_report(report_id, **params)
+        else:
+            client.create_report(**params)
 
     reports = client.list_report()
     return render_template("reports.html", reports=reports)
 
-@app.route("/reports/<id>")
-def report_detail(id):
-    report =  client.get_report(id)
-    return render_template("reports_detail.html", report=report)
 
-@app.route("/reports/<id>/delete", methods=["DELETE"])
-def report_delete(self, id):
+@app.route("/reports/<int:id>", methods=["GET", "POST"])
+def report_detail(id):
+    report = client.get_report(id)
+    tasks = report.tasks
+    if request.method == "POST":
+        kwargs = request.form
+        task_id = kwargs["task_id"]
+        params = {key: value for key, value in kwargs.items() if key != "task_id"}
+
+        if task_id:
+            client.update_task(task_id, **params)
+        else:
+            tasks = client.create_task(id, **params)
+
+    app.logger.info("Serving report %d with %d tasks", id, len(tasks))
+    return render_template("reports_detail.html", report=report, tasks=tasks)
+
+
+@app.route("/reports/<id>/delete", methods=["POST"])
+def report_delete(id):
     client.delete_report(id)
     return (204, "")
 
-@app.route("/reports/<id>/update", methods=["PUT", "PATCH"])
-def report_update(self, id):
-    kwargs = request.form
-    client.update_report(id, **kwargs)
-    return (200, "")
-
-@app.route("/tasks", methods=["POST", "GET"])
-def tasks():
-    if request.method=="POST":
-        kwargs = request.form
-        client.create_task(**kwargs)
-    tasks = client.list_task()
-    return render_template("tasks.html", tasks=tasks)
-
-@app.route("/tasks/<id>")
-def task_detail(id):
-    task = client.get_task(id)
-    return render_template("task_detail.html", task=task)
-
-@app.route("/tasks/<id>/delete", methods=["DELETE"])
-def task_delete(self, id):
-    client.delete_task(id)
-    return (204, "")
-
-@app.route("/tasks/<id>/update", methods=["PUT", "PATCH"])
-def task_update(self, id):
-    kwargs = request.form
-    client.update_task(id, **kwargs)
-    return (200, "")
+@app.route("/reports/<id>/markdown")
+def report_markdown(id):
+    report = client.get_report(id)
+    return (Markdown().convert(report.as_markdown()), 200)
 
 def runserver():
     app.run(port=5050)

@@ -5,8 +5,8 @@ DEBUG = False
 
 # Database
 DATABASES = {
-        "default": {
-            "engine": f"sqlite:///{BASE_DIR}/db.sqlite",
-            "config": {"autocommit": True}
-        }
+    "default": {
+        "engine": f"sqlite:///{BASE_DIR}/db.sqlite",
+        "config": {"autocommit": True},
+    }
 }

@@ -11,4 +11,3 @@ engine = create_engine(ENGINE)
 Session = sessionmaker(bind=engine)
 session = Session()
 breakpoint()
-

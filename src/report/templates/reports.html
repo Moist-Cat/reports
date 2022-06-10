@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Reports Images{% endblock %}
 {% block body %}
-    <h2>Create a report</h2>
+    <h2>Create/Edit a report</h2>
     <form action="/reports" method="post">
-        <input name="objective">
-        <input name="verb">
-        <input name="general_observations">
+        <p>ID</p><input name="report_id">
+        <p>Objective</p><input name="objective">
+        <p>Observations</p><input name="observations">
         <input type="submit">
     </form>
 	<h3>Select a report</h3>

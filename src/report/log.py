@@ -14,4 +14,3 @@ def logged(cls) -> Callable:
     cls.logger_err = logging.getLogger("audit." + cls.__qualname__)
 
     return cls
-
