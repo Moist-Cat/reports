@@ -2,7 +2,7 @@ import os
 import hashlib
 
 from flask import Flask, render_template, request, url_for, redirect
-from markdown import Markdown
+from markdown import markdown
 
 from report.api import DBClient
 from report.conf import settings
@@ -40,7 +40,7 @@ def report_detail(id):
     if request.method == "POST":
         kwargs = request.form
         task_id = kwargs["task_id"]
-        params = {key: value for key, value in kwargs.items() if key != "task_id"}
+        params = {key: value for key, value in kwargs.items() if key != "task_id" and value}
 
         if task_id:
             client.update_task(task_id, **params)
@@ -51,15 +51,33 @@ def report_detail(id):
     return render_template("reports_detail.html", report=report, tasks=tasks)
 
 
-@app.route("/reports/<id>/delete", methods=["POST"])
+@app.route("/reports/<int:id>/delete", methods=["GET"])
 def report_delete(id):
     client.delete_report(id)
-    return (204, "")
+    return redirect(url_for("index"))
 
-@app.route("/reports/<id>/markdown")
+@app.route("/tasks/<int:id>/delete", methods=["GET"])
+def task_delete(id):
+    client.delete_task(id)
+    return redirect(url_for("index"))
+
+@app.route("/reports/<int:id>/markdown")
 def report_markdown(id):
     report = client.get_report(id)
-    return (Markdown().convert(report.as_markdown()), 200)
+    text = report.as_markdown()
+    app.logger.debug(text)
+    return (markdown(text), 200)
+
+@app.route("/tasks/<int:id>", methods=["GET", "POST"])
+def task(id):
+    task = client.get_task(id)
+    if request.method == "POST":
+        params = request.form
+
+        client.update_task(id, **params)
+
+    app.logger.info("Serving task %d", id)
+    return render_template("task.html", task=task)
 
 def runserver():
     app.run(port=5050)

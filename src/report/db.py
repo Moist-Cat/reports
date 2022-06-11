@@ -20,38 +20,39 @@ from sqlalchemy import (
 
 
 class STATUS(Enum):
-    ABORTED = -1
-    PENDING = 0
-    COMPLETE = 1
+    ABORTADO = -1
+    PENDIENTE = 0
+    COMPLETADO = 1
 
 
 class PRIORITY(Enum):
-    MINOR = 1
-    MAJOR = 10
-    CRITICAL = 50
+    MENOR = 1
+    MEDIA = 10
+    MAYOR = 30
+    CRITICO = 50
 
 
 Base = declarative_base()
 
 TASK_TEMPLATE = """
-##Tarea #: {id}
-    * Objetivo: {objective}
+##Tarea #{id}
+* Objetivo: {objective}
 
-    * Estado: {status}
+* Estado: {status}
 
-    * Prioridad: {priority}
+* Prioridad: {priority}
 
-    * Solucion:
-        - {solution}
+* Solucion:
+{solution}
 
-    * Observaciones:
-        - {observations}
+* Observaciones:
+{observations}
 
-    * Creada: {date_created}
+* Creada: {date_created}
 
-    * Actualizada: {date_updated}
+* Actualizada: {date_updated}
 
-    * Finalizada: {date_finished}
+* Finalizada: {date_finished}
 """
 
 REPORT_TEMPLATE = """
@@ -65,7 +66,8 @@ Objetivo: {objective}
 {tasks}
 
 ---------------------
-Observaciones: {observations}
+#Observaciones:
+{observations}
 """
 
 class Task(Base):
@@ -94,10 +96,10 @@ class Task(Base):
         return TASK_TEMPLATE.format(
                 id=self.id,
                 objective=self.objective,
-                observations="\n\t\t- ".join(self.observations.split('\n')),
-                solution="\n\t\t- ".join(self.solution.split('\n')),
-                status=self.status,
-                priority=self.priority,
+                observations="\n".join(self.observations.split('\n')),
+                solution="\n".join(self.solution.split('\n')),
+                status=STATUS(self.status).name,
+                priority=PRIORITY(self.priority).name,
                 date_created=self.date_created,
                 date_updated=self.date_updated,
                 date_finished=self.date_finished,

@@ -53,10 +53,14 @@ class DBClient:
         return report.tasks
 
     def update_task(self, id, **kwargs):
+        date_finished = None
+        if kwargs["status"] == "1":
+            date_finished = datetime.now()
+
         return self.session.execute(
             update(Task)
             .where(Task.id == id)
-            .values(date_updated=datetime.now(), **kwargs),
+            .values(date_updated=datetime.now(), date_finished=date_finished,**kwargs),
         )
 
     def delete_task(self, id):
@@ -84,7 +88,7 @@ class DBClient:
         )
 
     def delete_report(self, id):
-        report = self.session.query(report).filter(Report.id == id)
+        report = self.session.query(Report).filter(Report.id == id).one()
         self.session.delete(report)
 
         return None

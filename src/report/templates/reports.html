@@ -5,7 +5,7 @@
     <form action="/reports" method="post">
         <p>ID</p><input name="report_id">
         <p>Objective</p><input name="objective">
-        <p>Observations</p><input name="observations">
+        <p>Observations</p><textarea name="observations" cols="48" rows="4" wrap="soft"></textarea>
         <input type="submit">
     </form>
 	<h3>Select a report</h3>
@@ -19,6 +19,9 @@
                  Objective
              </td>
              <td>
+                Observations
+             </td>
+             <td>
                  Date Created
              </td>
          </tr>
@@ -29,6 +32,9 @@
                  </td>
                  <td>
                      {{ report.objective }}
+                  </td>
+                  <td>
+                    {{ report.observations }}
                   </td>
                   <td>
                       {{ report.date_created }}
